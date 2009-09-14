@@ -1,50 +1,67 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <string.h>
 
-#define KAPREKARS_CONSTANT 495
+#define KAPREKARS_CONSTANT_3 495
+#define KAPREKARS_CONSTANT_4 6174
 
-int validate(int num);
+int validate(int num, int start, int end);
 int cmp_increasing(const void *p1, const void *p2);
 int cmp_decreasing(const void *p1, const void *p2);
-int kaprekar_procces(int num);
+int kaprekar_process(int num, int kaprekars_constant, int start, int end);
 
 int main(void)
 {
-  int i, steps;
+  int i, steps, digits,
+    start, end, kaprekars_constant;
 
-  for (i = 100; i < 1000; i++) {
-    steps = kaprekar_process(i);
+  printf("Would you like to generate for 3 digits or 4 digits? ");
+  scanf("%d", &digits);
+
+  if (digits == 3) {
+    kaprekars_constant = KAPREKARS_CONSTANT_3;
+  } else {
+    kaprekars_constant = KAPREKARS_CONSTANT_4;
+  }
+
+  start = pow((double) 10, (double) (digits - 1));
+  end  = pow((double) 10, (double) digits);
+
+  for (i = start; i < end; i++) {
+    steps = kaprekar_process(i, kaprekars_constant, start, end);
     printf("%d, %d steps\n", i, steps);
   }
 
   return 0;
 }
 
-int kaprekar_process(int num)
+int kaprekar_process(int num, int kaprekars_constant, int start, int end)
 {
   int cur_num = num, i = 0;
-  char little[4], big[4];
+  char little[5], big[5];
 
   do {
     i++;
 
     sprintf(little, "%d", cur_num);
-    sprintf(big, "%d", cur_num);
-    qsort(little, 3, sizeof(char), cmp_increasing);
-    qsort(big, 3, sizeof(char), cmp_decreasing);
+    strcpy(big, little);
 
-    if (!validate(cur_num)) {
+    qsort(little, strlen(little), sizeof(char), cmp_increasing);
+    qsort(big, strlen(big), sizeof(char), cmp_decreasing);
+
+    if (!validate(cur_num, start, end)) {
       return -1;
     }
   }
-  while((cur_num = atoi(big) - atoi(little)) != KAPREKARS_CONSTANT);
+  while((cur_num = atoi(big) - atoi(little)) != kaprekars_constant);
 
   return i;
 }
 
-int validate(int num)
+int validate(int num, int start, int end)
 {
-  if ((num <= 0) || (num < 100) || (num > 999) || (num % 111 == 0)) {
+  if ((num < start) || (num > end)) {
     return 0;
   }
 
